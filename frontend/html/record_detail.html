@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SkinAI - 분석 결과 상세</title>
+<link rel="icon" type="image/svg+xml" href="assets/skinai_icon.svg">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: #f8fafc; color: #1a1a2e; min-height: 100vh;
+    animation: pageFadeIn 0.3s ease;
+  }
+  @keyframes pageFadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+  /* NAV */
+  nav { background:#fff; border-bottom:1px solid #e8eaed; position:sticky; top:0; z-index:100; padding:0 24px; display:flex; align-items:center; justify-content:space-between; height:56px; }
+  .nav-left { display:flex; align-items:center; gap:12px; }
+  .nav-back { width:32px; height:32px; border-radius:8px; border:1px solid #e5e7eb; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; color:#6b7280; }
+  .nav-back:hover { border-color:#2563eb; color:#2563eb; background:#eff6ff; }
+  .nav-back svg { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .nav-title { font-size:15px; font-weight:700; color:#1a1a2e; }
+  .nav-right { display:flex; align-items:center; gap:8px; }
+  .icon-btn { width:34px; height:34px; border-radius:8px; border:1px solid #e5e7eb; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; color:#6b7280; }
+  .icon-btn:hover { border-color:#2563eb; color:#2563eb; background:#eff6ff; }
+  .icon-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* LAYOUT */
+  .wrap { max-width: 720px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  /* CARD */
+  .card { background:#fff; border:1px solid #e8edf4; border-radius:16px; padding:22px; margin-bottom:14px; box-shadow:0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(37,99,235,0.04); }
+  .card-title { font-size:14px; font-weight:700; color:#1a1a2e; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+  .card-title-dot { width:8px; height:8px; border-radius:50%; background:#2563eb; flex-shrink:0; }
+
+  /* 결과 헤더 */
+  .result-header { display:flex; align-items:center; gap:14px; padding:20px; background:linear-gradient(135deg,#eff6ff,#f5f3ff); border-radius:14px; margin-bottom:16px; border:1px solid #dbeafe; }
+  .result-icon { width:56px; height:56px; border-radius:14px; background:#2563eb; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+  .result-name { font-size:18px; font-weight:800; color:#1a1a2e; letter-spacing:-0.4px; margin-bottom:4px; }
+  .result-name-en { font-size:13px; color:#6b7280; margin-bottom:8px; }
+  .result-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .meta-chip { font-size:11px; font-weight:600; padding:3px 10px; border-radius:6px; }
+  .chip-blue { background:#eff6ff; color:#2563eb; }
+  .chip-green { background:#f0fdf4; color:#16a34a; }
+  .chip-red { background:#fef2f2; color:#dc2626; }
+  .chip-gray { background:#f3f4f6; color:#6b7280; }
+
+  /* 이미지 + 신뢰도 */
+  .image-conf-row { display:grid; grid-template-columns:1fr auto; gap:16px; align-items:start; margin-bottom:16px; }
+  .analyzed-img { width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; border:1px solid #e8eaed; background:#f3f4f6; display:flex; align-items:center; justify-content:center; font-size:40px; }
+  .conf-circle { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .conf-ring { position:relative; width:80px; height:80px; }
+  .conf-ring svg { transform:rotate(-90deg); }
+  .ring-bg { fill:none; stroke:#f3f4f6; stroke-width:6; }
+  .ring-fill { fill:none; stroke:#2563eb; stroke-width:6; stroke-linecap:round; transition:stroke-dashoffset 1s ease; }
+  .ring-val { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#2563eb; }
+  .conf-label { font-size:11px; color:#9ca3af; text-align:center; }
+
+  /* 내 답변 vs AI 비교 */
+  .compare-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+  .compare-box { padding:16px; border-radius:12px; border:1.5px solid; }
+  .compare-box.my { border-color:#e5e7eb; background:#f9fafb; }
+  .compare-box.ai { border-color:#bfdbfe; background:#eff6ff; }
+  .compare-label { font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+  .compare-name { font-size:14px; font-weight:700; color:#1a1a2e; margin-bottom:4px; }
+  .compare-sub { font-size:12px; color:#9ca3af; }
+  .compare-result { display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12px; font-weight:700; }
+  .compare-result.correct { color:#16a34a; }
+  .compare-result.wrong { color:#dc2626; }
+  .compare-result svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* 감별진단 */
+  .diff-list { display:flex; flex-direction:column; gap:10px; }
+  .diff-item { display:flex; align-items:center; gap:12px; }
+  .diff-rank { width:22px; height:22px; border-radius:6px; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .diff-rank.first { background:#eff6ff; color:#2563eb; }
+  .diff-rank.other { background:#f3f4f6; color:#9ca3af; }
+  .diff-info { flex:1; min-width:0; }
+  .diff-name { font-size:13px; font-weight:600; color:#1a1a2e; }
+  .diff-name-en { font-size:11px; color:#9ca3af; }
+  .diff-bar-wrap { width:120px; }
+  .diff-bar-row { display:flex; align-items:center; gap:6px; }
+  .diff-bar-bg { flex:1; height:6px; background:#f3f4f6; border-radius:3px; overflow:hidden; }
+  .diff-bar { height:100%; border-radius:3px; background:#2563eb; transition:width 0.8s ease; }
+  .diff-bar.low { background:#9ca3af; }
+  .diff-pct { font-size:11px; font-weight:700; color:#2563eb; width:32px; text-align:right; flex-shrink:0; }
+  .diff-pct.low { color:#9ca3af; }
+
+  /* AI 소견 */
+  .finding-list { display:flex; flex-direction:column; gap:10px; }
+  .finding-item { display:flex; gap:10px; padding:12px 14px; background:#f9fafb; border-radius:10px; border:1px solid #f0f1f3; }
+  .finding-dot { width:6px; height:6px; border-radius:50%; background:#2563eb; flex-shrink:0; margin-top:5px; }
+  .finding-text { font-size:13px; color:#374151; line-height:1.6; }
+
+  /* 질환 학습 정보 */
+  .disease-info { display:flex; flex-direction:column; gap:12px; }
+  .info-row { display:flex; gap:12px; align-items:flex-start; padding:12px 14px; background:#f9fafb; border-radius:10px; border:1px solid #f0f1f3; }
+  .info-label { font-size:11px; font-weight:700; color:#2563eb; min-width:60px; flex-shrink:0; padding-top:1px; }
+  .info-val { font-size:13px; color:#374151; line-height:1.6; }
+
+  /* 액션 버튼 */
+  .action-row { display:flex; gap:10px; flex-wrap:wrap; }
+  .act-btn { flex:1; min-width:120px; padding:12px 16px; border-radius:12px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:6px; border:1.5px solid #e5e7eb; background:#fff; color:#374151; }
+  .act-btn:hover { border-color:#2563eb; color:#2563eb; background:#eff6ff; }
+  .act-btn.primary {
+    background:linear-gradient(135deg,#2563eb,#4f46e5); color:#fff; border-color:transparent;
+    box-shadow:0 3px 12px rgba(37,99,235,0.35); position:relative; overflow:hidden;
+  }
+  .act-btn.primary::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.1) 0%,transparent 60%); opacity:0; transition:opacity 0.2s; }
+  .act-btn.primary:hover::before { opacity:1; }
+  .act-btn.primary:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(37,99,235,0.45); }
+  .act-btn svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* 토스트 */
+  .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:#1a1a2e; color:#fff; padding:11px 20px; border-radius:10px; font-size:13px; font-weight:500; opacity:0; transition:all 0.25s; white-space:nowrap; z-index:999; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ── 채팅 UI ── */
+  .suggest-chip { padding:7px 12px; border-radius:20px; border:1px solid #e0e7ff; background:#eff6ff; color:#2563eb; font-size:12px; font-weight:500; cursor:pointer; font-family:inherit; transition:all 0.15s; line-height:1.4; }
+  .suggest-chip:hover { background:#dbeafe; border-color:#93c5fd; }
+  .chat-input-outer { display:flex; gap:10px; align-items:center; background:#fff; border:1.5px solid #e5e7eb; border-radius:14px; padding:8px 8px 8px 14px; transition:border-color 0.15s, box-shadow 0.15s; }
+  .chat-input-outer:focus-within { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,0.08); }
+  @keyframes chatDotBounce { 0%,80%,100% { transform:translateY(0); opacity:0.4; } 40% { transform:translateY(-5px); opacity:1; } }
+  .chat-dot { width:6px; height:6px; border-radius:50%; background:#9ca3af; animation:chatDotBounce 1.2s ease infinite; display:inline-block; }
+  .chat-dot:nth-child(2) { animation-delay:0.18s; }
+  .chat-dot:nth-child(3) { animation-delay:0.36s; }
+
+  @media (max-width: 480px) {
+    .wrap { padding: 16px 16px 60px; }
+    .compare-row { grid-template-columns: 1fr; }
+    .image-conf-row { grid-template-columns: 1fr; }
+    .conf-circle { flex-direction: row; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <button class="nav-back" onclick="history.back()" title="뒤로가기">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="nav-title">분석 결과 상세</div>
+  </div>
+  <div class="nav-right">
+    <button class="icon-btn" onclick="shareRecord()" title="공유">
+      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    </button>
+    <button class="icon-btn" onclick="bookmarkRecord()" id="bookmarkBtn" title="북마크">
+      <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <button class="icon-btn" onclick="deleteRecord()" title="삭제" style="color:#dc2626;border-color:#fecaca;">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- 결과 헤더 -->
+  <div class="result-header">
+    <div>
+      <div class="result-name" id="detailDiagName">건선</div>
+      <div class="result-name-en" id="detailDiagEn">Psoriasis</div>
+      <div class="result-meta">
+        <span class="meta-chip chip-blue" id="detailConf">AI 신뢰도 -</span>
+        <span class="meta-chip chip-gray" id="detailDate">-</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 이미지 + 신뢰도 -->
+  <div class="card">
+    <div class="card-title"><div class="card-title-dot"></div> 분석 이미지</div>
+    <div class="image-conf-row">
+      <div class="analyzed-img" id="analyzedImg">🔬</div>
+      <div class="conf-circle">
+        <div class="conf-ring">
+          <svg viewBox="0 0 80 80" width="80" height="80">
+            <circle class="ring-bg" cx="40" cy="40" r="34"/>
+            <circle class="ring-fill" id="confRing" cx="40" cy="40" r="34"
+              stroke-dasharray="213.6" stroke-dashoffset="19.2"/>
+          </svg>
+          <div class="ring-val" id="confVal">91%</div>
+        </div>
+        <div class="conf-label">AI 신뢰도</div>
+      </div>
+    </div>
+    <div id="gradcamRow" style="display:none;margin-top:14px;">
+      <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Grad-CAM — AI 주목 영역</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <div style="font-size:11px;color:#9ca3af;margin-bottom:4px;text-align:center;">원본</div>
+          <div class="analyzed-img" id="gradcamOriginal"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#9ca3af;margin-bottom:4px;text-align:center;">히트맵</div>
+          <div class="analyzed-img" id="gradcamHeatmap"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI 소견 -->
+  <div class="card">
+    <div class="card-title"><div class="card-title-dot"></div> AI 소견</div>
+    <div class="finding-list" id="findingList"></div>
+  </div>
+
+  <!-- LLM 채팅 (Claude 스타일) -->
+  <div style="border-radius:16px;overflow:hidden;border:1px solid #e8eaed;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.04),0 4px 16px rgba(37,99,235,0.05);margin-bottom:14px;">
+    <!-- 헤더 -->
+    <div style="padding:14px 20px;background:linear-gradient(135deg,#f8faff,#faf5ff);border-bottom:1px solid #e8eaed;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#1a1a2e;">AI 의료 어시스턴트</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,0.15);"></div>
+        <span style="font-size:11px;color:#16a34a;font-weight:600;">온라인</span>
+      </div>
+    </div>
+    <!-- 예시 질문 (메시지 없을 때만 표시) -->
+    <div id="chatSuggestions" style="padding:14px 20px;border-bottom:1px solid #f3f4f6;">
+      <div style="font-size:11px;font-weight:700;color:#c4cad4;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">이런 질문을 해보세요</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <button class="suggest-chip" onclick="setQuestion(this)">이 질환의 주요 증상이 뭔가요?</button>
+        <button class="suggest-chip" onclick="setQuestion(this)">언제 피부과에 가야 하나요?</button>
+        <button class="suggest-chip" onclick="setQuestion(this)">일상에서 주의할 점은?</button>
+      </div>
+    </div>
+    <!-- 메시지 영역 -->
+    <div id="chatMessages" style="display:flex;flex-direction:column;gap:14px;padding:16px 20px;min-height:60px;max-height:400px;overflow-y:auto;"></div>
+    <!-- 입력창 -->
+    <div style="padding:14px 20px 18px;border-top:1px solid #f0f2f5;background:#fafcff;">
+      <div class="chat-input-outer">
+        <textarea id="chatInput" rows="1"
+          placeholder="이 진단에 대해 궁금한 점을 질문해보세요..."
+          style="flex:1;border:none;outline:none;font-size:13px;font-family:inherit;resize:none;line-height:1.5;max-height:100px;overflow-y:auto;background:transparent;color:#1a1a2e;padding:0;margin:0;vertical-align:middle;"
+          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();sendChat();}"></textarea>
+        <button onclick="sendChat()"
+          style="width:36px;height:36px;border-radius:10px;background:#2563eb;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;"
+          onmouseover="this.style.background='#1d4ed8'"
+          onmouseout="this.style.background='#2563eb'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <div style="font-size:11px;color:#c4cad4;text-align:center;margin-top:10px;">AI 응답은 참고용이며, 의학적 진단을 대체하지 않습니다.</div>
+    </div>
+  </div>
+
+
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="../src/auth_fetch.js"></script>
+<script src="../src/disease_map.js"></script>
+<script src="../src/record_detail.js"></script>
+<script src="../src/transition.js"></script>
+</body>
+</html>

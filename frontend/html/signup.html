@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SkinAI - 회원가입</title>
+<link rel="icon" type="image/svg+xml" href="assets/skinai_icon.svg">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  background:#f8fafc;
+  color:#1a1a2e;
+  min-height:100vh;
+  padding:32px 24px 60px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  animation:pageFadeIn 0.3s ease;
+  position:relative;
+}
+body::before {
+  content:''; position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 5% 8%, rgba(37,99,235,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 95% 92%, rgba(124,58,237,0.05) 0%, transparent 55%);
+  pointer-events:none; z-index:0;
+}
+body::after {
+  content:''; position:fixed; inset:0;
+  background-image: radial-gradient(circle, rgba(37,99,235,0.03) 1px, transparent 1px);
+  background-size:28px 28px; pointer-events:none; z-index:0;
+}
+.container { position:relative; z-index:1; }
+@keyframes pageFadeIn {
+  from { opacity:0; transform:translateY(6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.container { width:100%; max-width:480px; }
+
+.logo-wrap { text-align:center; margin-bottom:28px; }
+.logo-badge { display:inline-flex; align-items:center; gap:10px; margin-bottom:10px; }
+.logo-icon {
+    overflow:hidden;
+  width:44px; height:44px;
+  border-radius:13px; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 8px 24px rgba(37,99,235,0.4), 0 0 0 3px rgba(37,99,235,0.1);
+}
+.logo-icon svg { width:24px; height:24px; fill:none; stroke:#fff; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.logo-text { font-size:24px; font-weight:800; color:#0f172a; letter-spacing:-0.5px; }
+.logo-text span { color:#2563eb; }
+.logo-desc { font-size:13px; color:#94a3b8; letter-spacing:0.2px; }
+
+.card {
+  background:#fff; border:1px solid #e8edf4; border-radius:24px; padding:36px 32px;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.04),
+    0 8px 32px rgba(37,99,235,0.07),
+    0 24px 48px rgba(0,0,0,0.07);
+}
+
+.section { margin-bottom:28px; }
+.section:last-of-type { margin-bottom:0; }
+.section-title {
+  font-size:11.5px; font-weight:700; color:#2563eb;
+  text-transform:uppercase; letter-spacing:0.8px;
+  margin-bottom:16px; display:flex; align-items:center; gap:10px;
+}
+.section-title::after { content:''; flex:1; height:1px; background:linear-gradient(90deg, #dbeafe, transparent); }
+
+.field { margin-bottom:16px; }
+.field:last-child { margin-bottom:0; }
+.field-label { display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:7px; }
+.field-label .required { color:#ef4444; margin-left:2px; }
+.field-hint { font-size:11px; color:#9ca3af; margin-top:5px; }
+
+.input-wrap { position:relative; }
+.input-icon { position:absolute; left:13px; top:50%; transform:translateY(-50%); width:17px; height:17px; color:#9ca3af; pointer-events:none; }
+.input-icon.top { top:14px; transform:none; }
+
+input[type=text], input[type=email], input[type=password], select, textarea {
+  width:100%; padding:11px 13px 11px 40px;
+  border:1px solid #e5e7eb; border-radius:11px;
+  font-size:14px; color:#111827; background:#f9fafb;
+  outline:none; transition:all 0.2s; font-family:inherit;
+  -webkit-appearance:none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color:#2563eb; background:#fff;
+  box-shadow:0 0 0 3px rgba(37,99,235,0.1);
+}
+input::placeholder, textarea::placeholder { color:#c4cad4; }
+select { cursor:pointer; }
+textarea { resize:none; min-height:70px; padding-top:11px; line-height:1.6; }
+
+input.valid   { border-color:#10b981; background:#f0fdf4; }
+input.invalid { border-color:#ef4444; background:#fef2f2; }
+.field-error { font-size:11px; color:#ef4444; margin-top:5px; display:none; }
+.field-error.show { display:block; }
+
+.pw-toggle { position:absolute; right:13px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#9ca3af; padding:0; display:flex; align-items:center; }
+
+.pw-strength { margin-top:8px; }
+.pw-strength-bar { display:flex; gap:4px; margin-bottom:5px; }
+.pw-bar { flex:1; height:3px; border-radius:3px; background:#f3f4f6; transition:background 0.3s; }
+.pw-bar.weak { background:#ef4444; }
+.pw-bar.medium { background:#f59e0b; }
+.pw-bar.strong { background:#10b981; }
+.pw-strength-text { font-size:11px; color:#9ca3af; }
+.pw-strength-text.weak { color:#ef4444; }
+.pw-strength-text.medium { color:#f59e0b; }
+.pw-strength-text.strong { color:#10b981; }
+
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+.field-row .field { margin-bottom:0; }
+
+.role-select { display:flex; gap:8px; }
+.role-btn {
+  flex:1; padding:10px 8px; border:1.5px solid #e2e8f0; border-radius:10px;
+  background:#f8fafc; font-size:12px; font-weight:600; color:#94a3b8;
+  cursor:pointer; transition:all 0.2s; text-align:center; font-family:inherit;
+}
+.role-btn:hover { border-color:#bfdbfe; color:#2563eb; background:#eff6ff; }
+.role-btn.active { border-color:#2563eb; color:#2563eb; background:#eff6ff; box-shadow:0 0 0 3px rgba(37,99,235,0.08); }
+
+/* ── 개인정보 동의 ── */
+.privacy-warn { background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:11px 14px; margin-bottom:14px; display:flex; gap:9px; align-items:flex-start; }
+.privacy-warn svg { width:15px; height:15px; stroke:#dc2626; fill:none; stroke-width:2; flex-shrink:0; margin-top:1px; }
+.privacy-warn-text { font-size:12px; color:#dc2626; line-height:1.6; }
+
+.consent-go-btn {
+  width:100%; padding:13px 16px; background:#eff6ff; color:#2563eb;
+  border:1.5px solid #bfdbfe; border-radius:12px; font-size:14px; font-weight:600;
+  cursor:pointer; font-family:inherit; display:flex; align-items:center;
+  justify-content:center; gap:8px; transition:all 0.2s;
+}
+.consent-go-btn:hover { background:#dbeafe; border-color:#93c5fd; }
+
+.consent-done-row {
+  display:flex; align-items:center; gap:10px; padding:12px 14px;
+  background:#f0fdf4; border:1.5px solid #86efac; border-radius:12px;
+}
+.consent-done-check {
+  width:26px; height:26px; border-radius:50%; background:#10b981;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.consent-done-check svg { width:14px; height:14px; stroke:#fff; fill:none; stroke-width:2.5; stroke-linecap:round; }
+.consent-done-text { flex:1; font-size:13px; font-weight:600; color:#065f46; }
+.consent-redo-btn {
+  padding:5px 12px; border:1px solid #86efac; border-radius:8px;
+  background:#fff; color:#059669; font-size:12px; font-weight:600;
+  cursor:pointer; font-family:inherit; transition:all 0.15s;
+}
+.consent-redo-btn:hover { background:#dcfce7; }
+
+.error-banner { background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:11px 14px; font-size:13px; color:#dc2626; display:none; align-items:center; gap:8px; margin-bottom:16px; }
+.error-banner.show { display:flex; }
+
+.submit-btn {
+  width:100%; padding:15px;
+  background:linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700;
+  cursor:pointer; transition:all 0.22s; font-family:inherit;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  margin-top:24px; box-shadow:0 4px 20px rgba(37,99,235,0.38);
+  position:relative; overflow:hidden;
+}
+.submit-btn::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,0.13) 0%, transparent 60%);
+  opacity:0; transition:opacity 0.2s;
+}
+.submit-btn:hover::before { opacity:1; }
+.submit-btn:hover { transform:translateY(-1px); box-shadow:0 8px 28px rgba(37,99,235,0.48); }
+.submit-btn:active { transform:scale(0.98) translateY(0); }
+.submit-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none; }
+.btn-spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,0.4); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; display:none; }
+.submit-btn.loading .btn-spinner { display:block; }
+.submit-btn.loading .btn-text { display:none; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.success-card {
+  background:#fff; border:1px solid #e8edf4; border-radius:24px; padding:52px 32px;
+  text-align:center;
+  box-shadow:0 1px 2px rgba(0,0,0,0.04), 0 8px 32px rgba(37,99,235,0.07), 0 24px 48px rgba(0,0,0,0.07);
+  display:none;
+}
+.success-card.show { display:block; }
+.success-icon-wrap {
+  width:72px; height:72px; margin:0 auto 22px;
+  background:linear-gradient(135deg, #d1fae5, #a7f3d0);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 8px 24px rgba(16,185,129,0.25);
+  font-size:36px;
+}
+.success-title { font-size:21px; font-weight:700; color:#0f172a; margin-bottom:8px; letter-spacing:-0.4px; }
+.success-sub { font-size:14px; color:#6b7280; line-height:1.7; margin-bottom:28px; }
+.go-login-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:13px 32px;
+  background:linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700;
+  cursor:pointer; font-family:inherit; text-decoration:none;
+  transition:all 0.22s; box-shadow:0 4px 20px rgba(37,99,235,0.38);
+  position:relative; overflow:hidden;
+}
+.go-login-btn::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+  opacity:0; transition:opacity 0.2s;
+}
+.go-login-btn:hover::before { opacity:1; }
+.go-login-btn:hover { transform:translateY(-1px); box-shadow:0 8px 28px rgba(37,99,235,0.48); }
+
+.footer-link { text-align:center; margin-top:20px; font-size:13px; color:#9ca3af; }
+.footer-link a { color:#2563eb; font-weight:600; text-decoration:none; }
+.footer-link a:hover { text-decoration:underline; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="logo-wrap">
+    <div class="logo-badge">
+      <div class="logo-icon">
+        <img src="assets/skinai_icon.svg" style="width:100%;height:100%;" alt="SkinAI">
+      </div>
+      <div class="logo-text">Skin<span>AI</span></div>
+    </div>
+    <div class="logo-desc">피부질환 AI 분류 학습 플랫폼</div>
+  </div>
+
+  <!-- 회원가입 폼 -->
+  <div class="card" id="registerCard">
+
+    <div class="error-banner" id="errorBanner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="errorText"></span>
+    </div>
+
+    <!-- 기본 정보 -->
+    <div class="section">
+      <div class="section-title">기본 정보</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">이름 <span class="required">*</span></label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="nameInput" placeholder="홍길동" maxlength="20">
+          </div>
+          <div class="field-error" id="nameError">이름을 입력해주세요</div>
+        </div>
+        <div class="field">
+          <label class="field-label">역할 <span class="required">*</span></label>
+          <div class="role-select">
+            <button class="role-btn active" onclick="setRole(this,'resident')">전공의</button>
+            <button class="role-btn" onclick="setRole(this,'student')">의대생</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">이메일 <span class="required">*</span></label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 7l10 7 10-7"/></svg>
+          <input type="email" id="emailInput" placeholder="hospital@med.ac.kr" autocomplete="email" oninput="validateEmail()">
+        </div>
+        <div class="field-error" id="emailError"></div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">비밀번호 <span class="required">*</span></label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="pwInput" placeholder="8자 이상, 영문+숫자+특수문자" autocomplete="new-password" oninput="checkPwStrength()">
+          <button class="pw-toggle" type="button" onclick="togglePw('pwInput','eyeIcon1')">
+            <svg id="eyeIcon1" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="pw-strength" id="pwStrength" style="display:none">
+          <div class="pw-strength-bar">
+            <div class="pw-bar" id="bar1"></div>
+            <div class="pw-bar" id="bar2"></div>
+            <div class="pw-bar" id="bar3"></div>
+          </div>
+          <span class="pw-strength-text" id="pwStrengthText"></span>
+        </div>
+        <div class="field-error" id="pwError">비밀번호는 8자 이상이어야 합니다</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">비밀번호 확인 <span class="required">*</span></label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="pwConfirmInput" placeholder="비밀번호를 다시 입력하세요" autocomplete="new-password" oninput="validatePwConfirm()">
+          <button class="pw-toggle" type="button" onclick="togglePw('pwConfirmInput','eyeIcon2')">
+            <svg id="eyeIcon2" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="field-error" id="pwConfirmError">비밀번호가 일치하지 않습니다</div>
+      </div>
+    </div>
+
+    <!-- 소속 정보 -->
+    <div class="section">
+      <div class="section-title">소속 정보</div>
+
+      <div class="field">
+        <label class="field-label">소속 병원 / 학교 <span class="required">*</span></label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <input type="text" id="affiliationInput" placeholder="예) 서울대학교병원, 연세대학교 의과대학" maxlength="50">
+        </div>
+        <div class="field-error" id="affiliationError">소속 기관을 입력해주세요</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">학년 / 연차 <span style="color:#9ca3af;font-weight:400;font-size:12px">(선택)</span></label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <select id="yearSelect" style="padding-left:40px">
+            <option value="">선택하세요</option>
+            <option value="1">1학년 / 1년차</option>
+            <option value="2">2학년 / 2년차</option>
+            <option value="3">3학년 / 3년차</option>
+            <option value="4">4학년 / 4년차</option>
+            <option value="5+">5년차 이상</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">자기소개 <span style="color:#9ca3af;font-weight:400;font-size:12px">(선택)</span></label>
+        <div class="input-wrap">
+          <svg class="input-icon top" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <textarea id="bioInput" placeholder="간단한 자기소개를 입력해주세요" maxlength="200" oninput="updateBioCount()"></textarea>
+        </div>
+        <div class="field-hint" id="bioCount">0 / 200자</div>
+      </div>
+    </div>
+
+    <!-- 개인정보 동의 -->
+    <div class="section">
+      <div class="section-title">개인정보 동의</div>
+
+      <div class="privacy-warn">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="privacy-warn-text">SkinAI는 피부 사진 및 진단 결과를 수집합니다. 이는 <strong>건강정보(민감정보)</strong>에 해당하며, "개인정보보호법에 따라서 별도 동의가 필요합니다."</div>
+      </div>
+
+      <div id="consentPendingBox">
+        <button class="consent-go-btn" onclick="goToPrivacyConsent()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          개인정보 수집·이용 동의하기
+        </button>
+      </div>
+
+      <div id="consentDoneBox" style="display:none">
+        <div class="consent-done-row">
+          <div class="consent-done-check">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <span class="consent-done-text">개인정보 수집·이용 동의 완료</span>
+          <button class="consent-redo-btn" onclick="goToPrivacyConsent()">다시 확인</button>
+        </div>
+      </div>
+
+      <div class="field-error" id="agreeError" style="margin-top:10px">개인정보 동의가 필요합니다</div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="handleRegister()">
+      <div class="btn-spinner"></div>
+      <span class="btn-text">회원가입</span>
+    </button>
+  </div>
+
+  <div class="footer-link">
+    이미 계정이 있으신가요? <a href="login.html">로그인</a>
+  </div>
+
+</div>
+<script src="../src/signup.js"></script>
+<script src="../src/transition.js"></script>
+</body>
+</html>
